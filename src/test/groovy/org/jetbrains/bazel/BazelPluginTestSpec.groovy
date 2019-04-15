@@ -2,6 +2,7 @@ package org.jetbrains.bazel
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.jetbrains.bazel.tasks.BazelBuildTask
 import org.junit.Rule
 import spock.lang.Shared
 import org.gradle.api.plugins.BasePlugin
@@ -11,6 +12,7 @@ import spock.lang.Specification
 
 
 class BazelPluginTestSpec extends Specification {
+    private final def TEST_TARGET = 'bazel_build'
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
 
     private File buildFile
@@ -37,28 +39,35 @@ class BazelPluginTestSpec extends Specification {
         buildFile << """
             ${pluginInit}
 
-            bazel {
-                executable = 'meow'
-                options = [
-                    'one': 1,
-                    'two': 'woof',
-                    'three': [ 'a', 'ac', 'av'],
-                ]
-
-            }
-
-//            task bazel_build(type: ${BazelExecutorTask.class.name}) {
-//                workspace = file('C:/Development/jetbrains/examples/cpp-tutorial/stage1')
-//                executable = 'C:/Development/jetbrains/tools/bazel.exe'
+//            bazel {
+//                executable = 'meow'
 //                options = [
-//                    'one': 1,
+//                    'one': '1,
 //                    'two': 'woof',
+//                    'three': [ 'a', 'ac', 'av'],
 //                ]
 //            }
+                
+            task bazel_build(type: ${BazelBuildTask.class.name}) {
+                workspace = file('C:/Development/jetbrains/examples/cpp-tutorial/stage1')
+
+                startupOptions = [
+                    'max_idle_secs': 10000,
+                    'connect_timeout_secs': '60',
+                ]
+
+                commandOptions = [
+                    'experimental_docker_image': '',
+                    'experimental_scale_timeout': '1.0',
+                ]
+                
+                
+                targets = ['...']
+            }
         """
 
         when:
-        def result = build()
+        def result = build('bazel_build')
 
         then:
         true
@@ -66,10 +75,11 @@ class BazelPluginTestSpec extends Specification {
 
     BuildResult build(task = BasePlugin.BUILD_GROUP) {
         return GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(testProjectDir.root)
-            .withArguments([task])
-            .build()
+                .withPluginClasspath()
+                .withProjectDir(testProjectDir.root)
+                .withArguments(['--info', task])
+                .forwardOutput()
+                .build()
     }
 
     // def test2() {

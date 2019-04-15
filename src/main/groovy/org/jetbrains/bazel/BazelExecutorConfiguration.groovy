@@ -4,23 +4,27 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 
-class Option {
-    def value
-
-    Option(value) {
-        this.value = value
-    }
-}
-
 class BazelExecutorConfiguration {
     static final def DEFAULT_EXECUTABLE = 'bazel'
     static final def DEFAULT_COMMAND = 'build'
 
     DirectoryProperty workspace
     Property<String> executable
-    MapProperty<String,Option> arguments
+    MapProperty<String,Object> arguments
     Property<String> command
-    MapProperty<String,Option> options
+    MapProperty<String,Object> options
+//    Property<String> targets
+    MapProperty<String,String> environmant
+
+//    @Input
+//    protected List<String> getPaths() {
+//        return collect(getPluginClasspath(), new Transformer<String, File>() {
+//            @Override
+//            public String transform(File file) {
+//                return file.getAbsolutePath().replaceAll("\\\\", "/");
+//            }
+//        });
+//    }
 
 //    def getExecutable() {
 //        if(executable.present) {
@@ -31,17 +35,17 @@ class BazelExecutorConfiguration {
 //    }
 
 
-    def getCommand() {
-        if(command.present) {
-            command
-        }
-
-        DEFAULT_COMMAND
-    }
-
-    def setArguments(arguments) {
-        println arguments
-    }
+//    def getCommand() {
+//        if(command.present) {
+//            command
+//        }
+//
+//        DEFAULT_COMMAND
+//    }
+//
+//    def setArguments(arguments) {
+//        println "setter ${arguments}"
+//    }
 
 //    def setOptions(options) {
 //        println options
@@ -49,14 +53,14 @@ class BazelExecutorConfiguration {
 
     def getProcessBuilder() {
         return new ProcessBuilder()
-            .directory(
-                workspace
-            )
-            .command([
-                executable,
-                *options,
-                command,
-                *arguments,
-            ])
+                .directory(
+                        workspace
+                )
+                .command([
+                        executable,
+                        *options,
+                        command,
+                        *arguments,
+                ])
     }
 }

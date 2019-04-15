@@ -9,8 +9,7 @@ class BazelExecutor {
 
     def exec() {
         def processBuilder = executorConfiguration.processBuilder
-        def process = processBuilder.start();
+        def process = processBuilder.start()
         process.waitFor()
     }
 }
-
